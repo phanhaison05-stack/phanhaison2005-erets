@@ -1,0 +1,314 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Drawing.Text;
+
+namespace WindowsFormsApp5
+{
+    public partial class Form1 : Form
+    {
+        private string currentFilePath = string.Empty;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                InstalledFontCollection fonts = new InstalledFontCollection();
+                foreach (FontFamily font in fonts.Families)
+                {
+                    toolStripComboBox1.Items.Add(font.Name);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải danh sách Font: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+
+            toolStripComboBox2.Items.AddRange(new object[] {
+        "8", "9", "10", "11", "12", "14", "16", "18",
+        "20", "22", "24", "26", "28", "36", "48", "72"
+    });
+
+
+
+            if (toolStripComboBox1.Items.Contains("Tahoma"))
+            {
+                toolStripComboBox1.SelectedItem = "Tahoma";
+            }
+            else
+            {
+                toolStripComboBox1.SelectedIndex = 0;
+            }
+
+            toolStripComboBox2.SelectedItem = "14";
+
+            try
+            {
+                richTextBox1.Font = new Font("Tahoma", 14, FontStyle.Regular);
+            }
+            catch (Exception)
+            {
+                richTextBox1.Font = new Font(toolStripComboBox1.SelectedItem.ToString(), 14, FontStyle.Regular);
+            }
+        }
+
+
+        private void toolStripComboBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void ToggleStyle(FontStyle style)
+        {
+            Font currentFont = richTextBox1.SelectionFont;
+
+            if (currentFont == null)
+            {
+                currentFont = richTextBox1.Font;
+            }
+
+            FontStyle newFontStyle;
+
+            if (currentFont.Style.HasFlag(style))
+            {
+                newFontStyle = currentFont.Style & ~style;
+            }
+            else
+            {
+                newFontStyle = currentFont.Style | style;
+            }
+
+            richTextBox1.SelectionFont = new Font(currentFont, newFontStyle);
+        }
+        private void toolStripButton4_Click(object sender, EventArgs e)
+        {
+            ToggleStyle(FontStyle.Italic);
+
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+
+        }
+
+        private void hệThốngToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void mởTậpTinToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openDlg = new OpenFileDialog();
+
+            openDlg.Filter = "Rich Text Format (.rtf)|.rtf|Text Files (.txt)|.txt|All Files (.)|*.*";
+            openDlg.Title = "Chọn tập tin văn bản để mở";
+
+            if (openDlg.ShowDialog() == DialogResult.OK)
+            {
+                currentFilePath = openDlg.FileName;
+
+                try
+                {
+                    string extension = System.IO.Path.GetExtension(currentFilePath).ToLower();
+
+                    if (extension == ".rtf")
+                    {
+                        richTextBox1.LoadFile(currentFilePath, RichTextBoxStreamType.RichText);
+                    }
+                    else if (extension == ".txt")
+                    {
+                        richTextBox1.LoadFile(currentFilePath, RichTextBoxStreamType.PlainText);
+                    }
+                    else
+                    {
+                        richTextBox1.LoadFile(currentFilePath, RichTextBoxStreamType.PlainText);
+                    }
+
+                    MessageBox.Show($"Đã mở tập tin thành công: {System.IO.Path.GetFileName(currentFilePath)}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi mở tập tin: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void lưuNộiDungVănBảnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(currentFilePath))
+            {
+                try
+                {
+                    richTextBox1.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
+
+                    MessageBox.Show("Đã lưu văn bản thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi lưu tập tin: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                SaveFileDialog saveDlg = new SaveFileDialog();
+
+                saveDlg.Filter = "Rich Text Format (.rtf)|.rtf"; 
+                saveDlg.Title = "Chọn nơi lưu tập tin mới";
+                saveDlg.DefaultExt = "rtf";
+
+                if (saveDlg.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        currentFilePath = saveDlg.FileName;
+
+                        richTextBox1.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
+
+                        MessageBox.Show("Đã lưu văn bản mới thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Lỗi khi lưu tập tin: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            ToggleStyle(FontStyle.Underline);
+
+        }
+
+        private void toolStripButton3_Click(object sender, EventArgs e)
+        {
+            ToggleStyle(FontStyle.Bold);
+
+        }
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
+        }
+
+        private void địnhDạngToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FontDialog fontDlg = new FontDialog();
+
+            fontDlg.ShowColor = true;
+            fontDlg.ShowEffects = true;
+            fontDlg.Font = richTextBox1.SelectionFont ?? richTextBox1.Font;
+            fontDlg.Color = richTextBox1.SelectionColor;
+
+            if (fontDlg.ShowDialog() == DialogResult.OK)
+            {
+                richTextBox1.SelectionColor = fontDlg.Color;
+                richTextBox1.SelectionFont = fontDlg.Font;
+            }
+        }
+
+        private void Tạo_Click(object sender, EventArgs e)
+        {
+            // 1. Xóa nội dung hiện có trên RichTextBox
+            richTextBox1.Clear();
+
+            // 2. Reset đường dẫn tệp tin (để lần sau Save sẽ hỏi nơi lưu)
+            currentFilePath = string.Empty;
+
+            // 3. Tạo lại các giá trị mặc định (Font: Tahoma, Size: 14)
+
+            // Thiết lập lại ComboBoxes
+            if (toolStripComboBox1.Items.Contains("Tahoma"))
+            {
+                toolStripComboBox1.SelectedItem = "Tahoma";
+            }
+            toolStripComboBox2.SelectedItem = "14";
+
+            // Áp dụng Font mặc định cho RichTextBox
+            try
+            {
+                richTextBox1.Font = new Font("Tahoma", 14, FontStyle.Regular);
+            }
+            catch
+            {
+                // Xử lý dự phòng nếu Tahoma không khả dụng
+                richTextBox1.Font = new Font(toolStripComboBox1.SelectedItem.ToString(), 14, FontStyle.Regular);
+            }
+
+            // Cập nhật thanh trạng thái (đếm từ = 0)
+            // Gọi hàm TextChanged (nếu bạn đã cài đặt) sẽ tự động làm điều này.
+
+            MessageBox.Show("Đã tạo văn bản mới thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void Lưu_Click(object sender, EventArgs e)
+        {
+            // Trường hợp 1: Văn bản đã được mở hoặc lưu trước đó
+            if (!string.IsNullOrEmpty(currentFilePath))
+            {
+                try
+                {
+                    // Lưu trực tiếp xuống đường dẫn đã có
+                    // Lưu dưới định dạng Rich Text Format (*.rtf) để giữ định dạng
+                    richTextBox1.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
+
+                    MessageBox.Show("Đã lưu văn bản thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi lưu tập tin: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            // Trường hợp 2: Văn bản mới và chưa lưu lần nào
+            else
+            {
+                SaveFileDialog saveDlg = new SaveFileDialog();
+
+                // Cấu hình hộp thoại SaveFileDialog
+                saveDlg.Filter = "Rich Text Format (.rtf)|.rtf"; // Bắt buộc lưu kiểu *.rtf
+                saveDlg.Title = "Chọn nơi lưu tập tin mới";
+                saveDlg.DefaultExt = "rtf";
+
+                if (saveDlg.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Cập nhật đường dẫn tệp tin hiện tại
+                        currentFilePath = saveDlg.FileName;
+
+                        // Lưu dưới định dạng Rich Text Format
+                        richTextBox1.SaveFile(currentFilePath, RichTextBoxStreamType.RichText);
+
+                        MessageBox.Show("Đã lưu văn bản mới thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Lỗi khi lưu tập tin: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+    }
+}
+    
+
+       
+    
+
